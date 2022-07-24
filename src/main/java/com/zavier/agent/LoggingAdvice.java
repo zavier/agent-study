@@ -14,11 +14,11 @@ public class LoggingAdvice {
     public static String before(
             @Advice.AllArguments Object[] allArguments,
             @Advice.Origin Method method) {
-        if(allArguments == null) {
+        if (allArguments == null) {
             return null;
         }
-        Map<String, Object> map = new HashMap<>();
 
+        Map<String, Object> map = new HashMap<>();
         LocalVariableTableParameterNameDiscoverer discoverer = new LocalVariableTableParameterNameDiscoverer();
         final String[] parameterNames = discoverer.getParameterNames(method);
         for (int i = 0; i < parameterNames.length; i++) {
