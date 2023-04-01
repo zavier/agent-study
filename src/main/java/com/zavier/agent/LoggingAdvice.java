@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class LoggingAdvice {
 
-    @Advice.OnMethodEnter
+    @Advice.OnMethodEnter(suppress = Exception.class)
     public static String before(
             @Advice.AllArguments Object[] allArguments,
             @Advice.Origin Method method) {
@@ -33,5 +33,6 @@ public class LoggingAdvice {
             @Advice.Origin Method method,
             @Advice.Return(typing = Assigner.Typing.DYNAMIC) Object returnValue) {
         System.out.println("method:" + method.getName() + ",param:" + params + ",result:" + returnValue);
+        // 上报到某个位置
     }
 }

@@ -46,6 +46,7 @@
                     <archive>
                         <manifestEntries>
                             <Premain-Class>com.zavier.agent.Agent</Premain-Class>
+                            <Agent-Class>com.zavier.agent.Agent</Agent-Class>
                             <Can-Redefine-Classes>true</Can-Redefine-Classes>
                             <Can-Retransform-Classes>true</Can-Retransform-Classes>
                         </manifestEntries>

@@ -1,5 +1,6 @@
 package com.zavier.agent;
 
+import com.sun.tools.attach.VirtualMachine;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.description.type.TypeDescription;
@@ -13,12 +14,24 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
+import java.util.concurrent.TimeUnit;
 
-import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.namedOneOf;
 
 public class Agent {
+
+    public static void main(String[] args) throws Exception {
+        VirtualMachine jvm = VirtualMachine.attach("java process id");
+        jvm.loadAgent("xx/agent-study-1.0-SNAPSHOT-full.jar");
+
+        TimeUnit.SECONDS.sleep(60);
+        jvm.detach();
+    }
+
     /**
      * 方法名和参数不能修改，并且需要在 META-INF/MAINFEST.MF中配置此类
+     * 通过启动参数执行agent时使用此方法
+     *
      * @param args
      * @param instrumentation
      */
@@ -29,7 +42,17 @@ public class Agent {
         createAgent("com.zavier", "sayHello").installOn(instrumentation);
     }
 
-    private static AgentBuilder createAgent(String classNamePrefix, String methodName) {
+    /**
+     * 通过attach方法连接到jvm时使用此方法
+     *
+     * @param agentArgs
+     * @param inst
+     */
+    public static void agentmain(String agentArgs, Instrumentation inst) {
+        createAgent("com.zavier", "sayHello").installOn(inst);
+    }
+
+    private static AgentBuilder createAgent(String classNamePrefix, String... methodName) {
         return new AgentBuilder.Default().disableClassFormatChanges()
                 .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
                 .with(AgentBuilder.RedefinitionStrategy.Listener.StreamWriting.toSystemError())
@@ -40,7 +63,7 @@ public class Agent {
                     @Override
                     public DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription, ClassLoader classLoader, JavaModule module) {
                         return builder.visit(Advice.to(LoggingAdvice.class).on(
-                                named(methodName)));
+                                namedOneOf(methodName)));
                     }
 
                 });
